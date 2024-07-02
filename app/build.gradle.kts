@@ -58,12 +58,15 @@ dependencies {
 
     implementation("androidx.room:room-runtime:$room_version")
     annotationProcessor("androidx.room:room-compiler:$room_version")
-
+    implementation("androidx.room:room-ktx:$room_version")
     // To use Kotlin annotation processing tool (kapt)
     kapt("androidx.room:room-compiler:$room_version")
 
+    //Dagger - Hilt
     implementation ("com.google.dagger:hilt-android:2.48.1") // Use the latest version
     kapt ("com.google.dagger:hilt-android-compiler:2.48.1") // Use kapt if needed
+//    kapt ("androidx.hilt:hilt-compiler:1.2.0")
+
 
     // For Jetpack Compose support (if you're using it):
     implementation ("androidx.hilt:hilt-navigation-compose:1.2.0")
