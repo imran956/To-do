@@ -2,12 +2,10 @@ package com.example.to_dolist.ui.screens.list
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -36,13 +34,14 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.to_dolist.R
+import com.example.to_dolist.components.DisplayAlertDialog
 import com.example.to_dolist.components.PriorityItem
 import com.example.to_dolist.data.models.Priority
-import com.example.to_dolist.ui.theme.LARGE_PADDING
 import com.example.to_dolist.ui.theme.TOP_APP_BAR_HEIGHT
 import com.example.to_dolist.ui.theme.topAppBarBackgroundColor
 import com.example.to_dolist.ui.theme.topAppBarContentColor
 import com.example.to_dolist.ui.viewmodels.SharedViewModel
+import com.example.to_dolist.util.Action
 import com.example.to_dolist.util.SearchAppBarState
 import com.example.to_dolist.util.TrailingIconState
 
@@ -59,7 +58,9 @@ fun ListAppBar(
                     sharedViewModel.searchAppBarState.value = SearchAppBarState.OPENED
                 },
                 onSortClicked = {},
-                onDeleteAllClicked = {}
+                onDeleteAllConfirmed = {
+                    sharedViewModel.action.value = Action.DELETE_ALL
+                }
             )
         }
 
@@ -69,7 +70,9 @@ fun ListAppBar(
                 onTextChange = {
                     sharedViewModel.searchTextState.value = it
                 },
-                onSearchClicked = {},
+                onSearchClicked = {
+                    sharedViewModel.searchTasks(searchQuery = it)
+                },
                 onCloseClicked = {
                     sharedViewModel.searchAppBarState.value = SearchAppBarState.CLOSED
                     sharedViewModel.searchTextState.value = ""
@@ -84,7 +87,7 @@ fun ListAppBar(
 fun DefaultListAppBar(
     onSearchClicked: () -> Unit,
     onSortClicked: (Priority) -> Unit,
-    onDeleteAllClicked: () -> Unit
+    onDeleteAllConfirmed: () -> Unit
 ) {
     TopAppBar(
         title = {
@@ -100,7 +103,7 @@ fun DefaultListAppBar(
             ListAppBarActions(
                 onSearchClicked = onSearchClicked,
                 onSortClicked = onSortClicked,
-                onDeleteAllClicked = onDeleteAllClicked
+                onDeleteAllConfirmed = onDeleteAllConfirmed
             )
         }
     )
@@ -110,11 +113,21 @@ fun DefaultListAppBar(
 fun ListAppBarActions(
     onSearchClicked: () -> Unit,
     onSortClicked: (Priority) -> Unit,
-    onDeleteAllClicked: () -> Unit
+    onDeleteAllConfirmed: () -> Unit
 ) {
+    var openDialog by remember {
+        mutableStateOf(false)
+    }
+    DisplayAlertDialog(
+        title = stringResource(id = R.string.delete_all_tasks),
+        message = stringResource(id = R.string.delete_all_tasks_confirmation),
+        openDialog = openDialog,
+        onCloseClicked = { openDialog = false },
+        onYesClicked = { onDeleteAllConfirmed() }
+    )
     SearchAction(onSearchClicked = onSearchClicked)
     SortAction(onSortClicked = onSortClicked)
-    DeleteAllAction(onDeleteAllClicked = onDeleteAllClicked)
+    DeleteAllAction(onDeleteAllConformed = { openDialog = true })
 }
 
 @Composable
@@ -178,7 +191,7 @@ fun SortAction(onSortClicked: (Priority) -> Unit) {
 }
 
 @Composable
-fun DeleteAllAction(onDeleteAllClicked: () -> Unit) {
+fun DeleteAllAction(onDeleteAllConformed: () -> Unit) {
     var expanded by remember {
         mutableStateOf(false)
     }
@@ -203,7 +216,7 @@ fun DeleteAllAction(onDeleteAllClicked: () -> Unit) {
                 },
                 onClick = {
                     expanded = false
-                    onDeleteAllClicked()
+                    onDeleteAllConformed()
                 }
             )
         }

@@ -31,7 +31,15 @@ fun NavGraphBuilder.taskComposable(
 
         //In launchedEffect whenever key changes this block will be triggered
         LaunchedEffect(key1 = selectedTask){
-            sharedViewModel.updateTaskFields(selectedTask = selectedTask)
+//            Log.d("selectedTask", selectedTask.toString())
+            if(selectedTask != null || taskId == -1){
+                //this code was getting executed whenever key was changing that means on delete action
+                // also it was getting executed and update our text field to null and if  try to undo
+                // that task then I was getting null that's why I have keep this inside if block .
+                // Now this will only be executed whenever there will be task in selected id or
+                // if floating action button clicked that is taskId = -1
+                sharedViewModel.updateTaskFields(selectedTask = selectedTask)
+            }
         }
         TaskScreen(
             navigateToListScreen = navigateToListScreen,
