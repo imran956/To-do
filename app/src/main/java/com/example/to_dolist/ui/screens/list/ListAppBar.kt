@@ -1,5 +1,6 @@
 package com.example.to_dolist.ui.screens.list
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.text.KeyboardActions
@@ -57,7 +58,7 @@ fun ListAppBar(
                 onSearchClicked = {
                     sharedViewModel.searchAppBarState.value = SearchAppBarState.OPENED
                 },
-                onSortClicked = {},
+                onSortClicked = { sharedViewModel.persistSortState(it)},
                 onDeleteAllConfirmed = {
                     sharedViewModel.action.value = Action.DELETE_ALL
                 }
@@ -156,7 +157,8 @@ fun SortAction(onSortClicked: (Priority) -> Unit) {
         )
         DropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.background(color = MaterialTheme.colorScheme.topAppBarBackgroundColor)
         ) {
             DropdownMenuItem(
                 text = { PriorityItem(priority = Priority.None) },
@@ -170,13 +172,6 @@ fun SortAction(onSortClicked: (Priority) -> Unit) {
                 onClick = {
                     expanded = false
                     onSortClicked(Priority.Low)
-                }
-            )
-            DropdownMenuItem(
-                text = { PriorityItem(priority = Priority.Medium) },
-                onClick = {
-                    expanded = false
-                    onSortClicked(Priority.Medium)
                 }
             )
             DropdownMenuItem(
@@ -203,7 +198,8 @@ fun DeleteAllAction(onDeleteAllConformed: () -> Unit) {
         )
         DropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.background(color = MaterialTheme.colorScheme.topAppBarBackgroundColor)
         ) {
             DropdownMenuItem(
                 text = {
