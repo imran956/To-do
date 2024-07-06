@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.to_dolist.data.models.Priority
 import com.example.to_dolist.data.models.ToDoTask
 import com.example.to_dolist.data.repositories.DataStoreRepository
@@ -80,7 +79,7 @@ class SharedViewModel @Inject constructor(
     private val _sortState = MutableStateFlow<RequestState<Priority>>(RequestState.Idle)
     val sortState: StateFlow<RequestState<Priority>> = _sortState
 
-    fun readSortState() {
+    /*fun readSortState() {
         _sortState.value = RequestState.Loading
         try {
             viewModelScope.launch {
@@ -92,9 +91,9 @@ class SharedViewModel @Inject constructor(
         } catch (e: Exception) {
             _sortState.value = RequestState.Error(e)
         }
-    }
+    }*/
 
-   /* fun readSortState() {
+    fun readSortState() {
         _sortState.value = RequestState.Loading
         viewModelScope.launch {
             try {
@@ -115,7 +114,7 @@ class SharedViewModel @Inject constructor(
                 _sortState.value = RequestState.Error(e)
             }
         }
-    }*/
+    }
 
 
     fun persistSortState(priority: Priority) {

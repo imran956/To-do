@@ -35,13 +35,16 @@ val Colors.topAppBarContentColor: Color
 */
 
 //do this for every component where I used onBackground and onSurface
+val ColorScheme.splashScreenBackground: Color
+    @Composable
+    get() = if (isSystemInDarkTheme()) Color.Black else RoyalPurple
 val ColorScheme.taskItemBackgroundColor: Color
     @Composable
-    get() = if (isSystemInDarkTheme()) DarkGray else Color.White
+    get() = if (isSystemInDarkTheme()) DarkGray else LightGray
 
 val ColorScheme.taskItemTextColor: Color
     @Composable
-    get() = if (isSystemInDarkTheme()) LightGray else DarkGray
+    get() = if (isSystemInDarkTheme()) Color.White else Color.Black
 
 val ColorScheme.topAppBarContentColor: Color
     @Composable

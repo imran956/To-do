@@ -1,11 +1,17 @@
 package com.example.to_dolist.ui.screens.list
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -14,11 +20,23 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.DismissDirection
+import androidx.compose.material3.DismissValue
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.SwipeToDismiss
+import androidx.compose.material3.SwipeToDismissDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -38,8 +56,11 @@ import com.example.to_dolist.ui.theme.PRIORITY_INDICATOR_SIZE
 import com.example.to_dolist.ui.theme.TASK_ITEM_ELEVATION
 import com.example.to_dolist.ui.theme.taskItemBackgroundColor
 import com.example.to_dolist.ui.theme.taskItemTextColor
+import com.example.to_dolist.util.Action
 import com.example.to_dolist.util.RequestState
 import com.example.to_dolist.util.SearchAppBarState
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun ListContent(
@@ -49,41 +70,49 @@ fun ListContent(
     highPriorityTasks: List<ToDoTask>,
     sortState: RequestState<Priority>,
     searchAppBarState: SearchAppBarState,
+    onSwipeToDeleteTask: (Action, ToDoTask) -> Unit,
     navigateToTaskScreen: (taskId: Int) -> Unit,
     padding: PaddingValues
 ) {
-    if(sortState is RequestState.Success){
-        when{
+    if (sortState is RequestState.Success) {
+        when {
             searchAppBarState == SearchAppBarState.TRIGGERED -> {
                 if (searchedTasks is RequestState.Success) {
                     HandleListContent(
                         task = searchedTasks.data,
                         navigateToTaskScreen = navigateToTaskScreen,
+                        onSwipeToDeleteTask = onSwipeToDeleteTask,
                         padding = padding
                     )
                 }
 
             }
-            sortState.data == Priority.None ->{
+
+            sortState.data == Priority.None -> {
                 if (allTasks is RequestState.Success) {
                     HandleListContent(
                         task = allTasks.data,
                         navigateToTaskScreen = navigateToTaskScreen,
+                        onSwipeToDeleteTask = onSwipeToDeleteTask,
                         padding = padding
                     )
                 }
             }
+
             sortState.data == Priority.Low -> {
                 HandleListContent(
                     task = lowPriorityTasks,
                     navigateToTaskScreen = navigateToTaskScreen,
+                    onSwipeToDeleteTask = onSwipeToDeleteTask,
                     padding = padding
                 )
             }
+
             sortState.data == Priority.High -> {
                 HandleListContent(
                     task = highPriorityTasks,
                     navigateToTaskScreen = navigateToTaskScreen,
+                    onSwipeToDeleteTask = onSwipeToDeleteTask,
                     padding = padding
                 )
             }
@@ -94,6 +123,7 @@ fun ListContent(
 @Composable
 fun HandleListContent(
     task: List<ToDoTask>,
+    onSwipeToDeleteTask: (Action, ToDoTask) -> Unit,
     navigateToTaskScreen: (taskId: Int) -> Unit,
     padding: PaddingValues
 ) {
@@ -103,15 +133,18 @@ fun HandleListContent(
         DisplayTasks(
             tasks = task,
             navigateToTaskScreen = navigateToTaskScreen,
+            onSwipeToDeleteTask = onSwipeToDeleteTask,
             padding = padding
         )
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DisplayTasks(
     tasks: List<ToDoTask>,
     navigateToTaskScreen: (taskId: Int) -> Unit,
+    onSwipeToDeleteTask: (Action, ToDoTask) -> Unit,
     padding: PaddingValues
 ) {
     LazyColumn(modifier = Modifier.padding(padding)) {
@@ -121,10 +154,56 @@ fun DisplayTasks(
                 task.id
             }
         ) { task ->
-            TaskItem(
-                toDoTask = task,
-                navigateToTaskScreen = navigateToTaskScreen
+            val dismissState = rememberDismissState()
+            val dismissDirection = dismissState.dismissDirection
+            val isDismissed = dismissState.isDismissed(DismissDirection.EndToStart)
+//            val isDismissed = dismissState.dismissDirection == DismissDirection.EndToStart
+//            if (isDismissed && dismissDirection == DismissDirection.EndToStart) {
+            //This is working without adding condition after && because we have verified the dismiss direction in val isDismissed
+            if (isDismissed) {
+                val scope = rememberCoroutineScope()
+                LaunchedEffect(key1 = true) {
+                    scope.launch {
+                        delay(300)
+                        onSwipeToDeleteTask(Action.DELETE, task)
+                    }
+                }
+            }
+            val degree by animateFloatAsState(
+                if (dismissState.targetValue == DismissValue.Default) 0f else -45f
             )
+
+            var itemAppeared by remember { mutableStateOf(false) }
+            LaunchedEffect(key1 = true) {
+                itemAppeared = true
+            }
+
+            AnimatedVisibility(
+                visible = itemAppeared && !isDismissed,
+                enter = expandVertically(
+                    animationSpec = tween(
+                        durationMillis = 300
+                    )
+                ),
+                exit = shrinkVertically(
+                    animationSpec = tween(
+                        durationMillis = 300
+                    )
+                )
+            ) {
+                SwipeToDismiss(
+                    state = dismissState,
+                    directions = setOf(DismissDirection.EndToStart),
+                    background = { RedBackground(degree = degree) },
+
+                    dismissContent = {
+                        TaskItem(
+                            toDoTask = task,
+                            navigateToTaskScreen = navigateToTaskScreen
+                        )
+                    }
+                )
+            }
         }
     }
 }
@@ -133,7 +212,7 @@ fun DisplayTasks(
 fun RedBackground(degree: Float) {
     Box(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .background(HighPriorityColor)
             .padding(horizontal = LARGEST_PADDING),
         contentAlignment = Alignment.CenterEnd

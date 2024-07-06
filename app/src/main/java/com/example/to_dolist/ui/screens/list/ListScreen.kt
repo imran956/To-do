@@ -1,8 +1,7 @@
 package com.example.to_dolist.ui.screens.list
 
-import androidx.compose.foundation.background
+
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
@@ -19,12 +18,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.example.to_dolist.R
-import com.example.to_dolist.ui.theme.LightGray
 import com.example.to_dolist.ui.theme.topAppBarBackgroundColor
 import com.example.to_dolist.ui.viewmodels.SharedViewModel
 import com.example.to_dolist.util.Action
@@ -84,6 +80,12 @@ fun ListScreen(
                 sortState = sortState,
                 lowPriorityTasks = lowPriorityTasks,
                 highPriorityTasks = highPriorityTasks,
+                onSwipeToDeleteTask = { action, task ->
+                    sharedViewModel.action.value = action
+                    //To delete this line of code is important
+                    sharedViewModel.updateTaskFields(selectedTask = task)
+
+                },
                 padding = it
             )
         },
@@ -96,7 +98,7 @@ fun ListScreen(
 @Composable
 fun ListFab(onFabClicked: (taskId: Int) -> Unit) {
     FloatingActionButton(
-        containerColor = if(isSystemInDarkTheme()) Color.DarkGray else MaterialTheme.colorScheme.topAppBarBackgroundColor,
+        containerColor = if (isSystemInDarkTheme()) Color.DarkGray else MaterialTheme.colorScheme.topAppBarBackgroundColor,
         onClick = { onFabClicked(-1) }
     ) {
         Icon(
