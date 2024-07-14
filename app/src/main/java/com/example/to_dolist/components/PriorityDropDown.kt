@@ -2,6 +2,7 @@ package com.example.to_dolist.components
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
@@ -15,6 +16,8 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.MenuItemColors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -32,6 +36,8 @@ import com.example.to_dolist.R
 import com.example.to_dolist.data.models.Priority
 import com.example.to_dolist.ui.theme.PRIORITY_DROPDOWN_HEIGHT
 import com.example.to_dolist.ui.theme.PRIORITY_INDICATOR_SIZE
+import com.example.to_dolist.ui.theme.taskItemTextColor
+import com.example.to_dolist.ui.theme.topAppBarBackgroundColor
 import com.example.to_dolist.ui.theme.topAppBarContentColor
 
 @Composable
@@ -47,13 +53,13 @@ fun PriorityDropDown(
 
     Row(
         modifier = Modifier
-        .fillMaxWidth()
-        .height(PRIORITY_DROPDOWN_HEIGHT)
-        .clickable { expanded = true }
-        .border(
-            width = 1.dp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-            shape = MaterialTheme.shapes.small
-        ),
+            .fillMaxWidth()
+            .height(PRIORITY_DROPDOWN_HEIGHT)
+            .clickable { expanded = true }
+            .border(
+                width = 1.dp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                shape = MaterialTheme.shapes.small
+            ),
         verticalAlignment = Alignment.CenterVertically,
     )
     {
@@ -68,7 +74,7 @@ fun PriorityDropDown(
             modifier = Modifier.weight(8f),
             text = priority.name,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.topAppBarContentColor
+            color = MaterialTheme.colorScheme.taskItemTextColor
         )
         IconButton(
             modifier = Modifier
@@ -81,11 +87,11 @@ fun PriorityDropDown(
             Icon(
                 imageVector = Icons.Filled.ArrowDropDown,
                 contentDescription = stringResource(id = R.string.drop_down_arrow_icon),
-                tint = MaterialTheme.colorScheme.topAppBarContentColor
+                tint = MaterialTheme.colorScheme.taskItemTextColor
             )
         }
         DropdownMenu(
-            modifier = Modifier.fillMaxWidth(fraction = 0.94f),
+            modifier = Modifier.fillMaxWidth(fraction = 0.94f).background(MaterialTheme.colorScheme.topAppBarBackgroundColor),
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {

@@ -15,7 +15,7 @@ fun NavGraphBuilder.splashComposable(
         exitTransition = {
             slideOutVertically (
                 targetOffsetY = { -it },
-                animationSpec = tween(300)
+                animationSpec = tween(4000)
             )
         }
     ) {

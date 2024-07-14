@@ -33,7 +33,11 @@ fun TaskContent(
     onPrioritySelected: (Priority) -> Unit,
     padding: PaddingValues
 ) {
-    Column(modifier = Modifier.padding(start = LARGE_PADDING, end = LARGE_PADDING,bottom = LARGE_PADDING)){
+    Column(modifier = Modifier.padding(
+        start = LARGE_PADDING,
+        end = LARGE_PADDING,
+        bottom = LARGE_PADDING
+    )){
         Column(
             modifier = Modifier
                 .fillMaxSize()
